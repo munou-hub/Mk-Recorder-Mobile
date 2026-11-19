@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <jp.mk.recorder.MeterView
+            android:id="@+id/meterView"
+            android:layout_width="match_parent"
+            android:layout_height="72dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="bottom"
+            android:layout_marginTop="10dp">
+
+            <TextView
+                android:id="@+id/tvRecTime"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="00:00:00"
+                android:textSize="44sp"
+                android:textColor="@color/text_main"
+                android:fontFamily="monospace" />
+
+            <TextView
+                android:id="@+id/tvRemain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="残り --:--"
+                android:textSize="13sp"
+                android:textColor="@color/text_sub" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="12sp"
+            android:textColor="@color/text_sub" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp">
+
+            <Button
+                android:id="@+id/btnFmtWav"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="WAV"
+                android:textColor="@color/text_main"
+                android:background="@drawable/bg_button_primary" />
+
+            <Button
+                android:id="@+id/btnFmtFlac"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:text="FLAC"
+                android:textColor="@color/text_main"
+                android:background="@drawable/bg_button_secondary" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvFmtNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="12sp"
+            android:textColor="@color/text_sub" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp">
+
+            <Button
+                android:id="@+id/btnRec"
+                android:layout_width="0dp"
+                android:layout_height="64dp"
+                android:layout_weight="2"
+                android:text="● 録音"
+                android:textSize="19sp"
+                android:textColor="@color/text_main"
+                android:background="@drawable/bg_button_rec" />
+
+            <Button
+                android:id="@+id/btnStop"
+                android:layout_width="0dp"
+                android:layout_height="64dp"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:text="■ 停止"
+                android:textSize="16sp"
+                android:textColor="@color/text_main"
+                android:background="@drawable/bg_button_secondary" />
+
+            <Button
+                android:id="@+id/btnMarker"
+                android:layout_width="0dp"
+                android:layout_height="64dp"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:text="⚑ マーカー"
+                android:textSize="13sp"
+                android:textColor="@color/text_main"
+                android:background="@drawable/bg_button_secondary" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="14dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="レート" android:textSize="12sp" android:textColor="@color/text_sub" />
+                <Spinner
+                    android:id="@+id/spRate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="6dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="ビット深度" android:textSize="12sp" android:textColor="@color/text_sub" />
+                <Spinner
+                    android:id="@+id/spDepth"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="6dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="チャンネル" android:textSize="12sp" android:textColor="@color/text_sub" />
+                <Spinner
+                    android:id="@+id/spCh"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ゲイン"
+                android:textSize="13sp"
+                android:textColor="@color/text_sub" />
+
+            <SeekBar
+                android:id="@+id/seekGain"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:max="720" />
+
+            <TextView
+                android:id="@+id/tvGain"
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:text="+0.0 dB"
+                android:textSize="13sp"
+                android:textColor="@color/text_main" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp">
+
+            <Button
+                android:id="@+id/btnMeterLufs"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="LUFS"
+                android:textColor="@color/text_main"
+                android:background="@drawable/bg_button_primary" />
+
+            <Button
+                android:id="@+id/btnMeterRms"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:text="RMS"
+                android:textColor="@color/text_main"
+                android:background="@drawable/bg_button_secondary" />
+
+            <Button
+                android:id="@+id/btnMeterPeak"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:text="PEAK"
+                android:textColor="@color/text_main"
+                android:background="@drawable/bg_button_secondary" />
+        </LinearLayout>
+    </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/fxArea"
+        android:layout_width="match_parent"
+        android:layout_height="170dp"
+        android:orientation="vertical"
+        android:background="@drawable/bg_card"
+        android:layout_margin="12dp"
+        android:padding="12dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="エフェクト"
+            android:textSize="14sp"
+            android:textColor="@color/text_main" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp">
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="EQ"
+                android:enabled="false"
+                android:textColor="@color/text_sub"
+                android:background="@drawable/bg_button_secondary" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:text="コンプ"
+                android:enabled="false"
+                android:textColor="@color/text_sub"
+                android:background="@drawable/bg_button_secondary" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:text="リバーブ"
+                android:enabled="false"
+                android:textColor="@color/text_sub"
+                android:background="@drawable/bg_button_secondary" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:text="リミッター"
+                android:enabled="false"
+                android:textColor="@color/text_sub"
+                android:background="@drawable/bg_button_secondary" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="エフェクトは次フェーズでここに実装します（再生時は非破壊リアルタイム、書き出し時は破壊的適用）。"
+            android:textSize="12sp"
+            android:textColor="@color/text_sub" />
+    </LinearLayout>
+</LinearLayout>

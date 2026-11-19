@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnRenameBatch"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="一斉リネーム"
+            android:textColor="@color/text_main"
+            android:background="@drawable/bg_button_primary" />
+
+        <Button
+            android:id="@+id/btnClearSel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            android:text="選択解除"
+            android:textColor="@color/text_main"
+            android:background="@drawable/bg_button_secondary" />
+
+        <TextView
+            android:id="@+id/tvLibCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text=""
+            android:textSize="12sp"
+            android:textColor="@color/text_sub" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/listRec"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="8dp"
+        android:divider="#334155"
+        android:dividerHeight="1dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_card"
+        android:padding="10dp"
+        android:layout_marginTop="8dp">
+
+        <TextView
+            android:id="@+id/tvPlayTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="（ファイル未選択）"
+            android:textSize="14sp"
+            android:textColor="@color/text_main" />
+
+        <jp.mk.recorder.WaveformView
+            android:id="@+id/waveView"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_marginTop="6dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="4dp">
+
+            <Button
+                android:id="@+id/btnPlay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="▶ 再生"
+                android:textColor="@color/text_main"
+                android:background="@drawable/bg_button_primary" />
+
+            <Button
+                android:id="@+id/btnStopPlay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="■"
+                android:textColor="@color/text_main"
+                android:background="@drawable/bg_button_secondary" />
+
+            <TextView
+                android:id="@+id/tvPlayPos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="00:00 / 00:00"
+                android:textSize="13sp"
+                android:textColor="@color/text_sub"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:scrollbars="none">
+            <LinearLayout
+                android:id="@+id/markerRow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+        </HorizontalScrollView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <Button
+                android:id="@+id/btnFft2048"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="FFT 2048"
+                android:textColor="@color/text_main"
+                android:background="@drawable/bg_button_secondary" />
+
+            <Button
+                android:id="@+id/btnFft4096"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="FFT 4096"
+                android:textColor="@color/text_main"
+                android:background="@drawable/bg_button_primary" />
+        </LinearLayout>
+
+        <jp.mk.recorder.FftView
+            android:id="@+id/fftView"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_marginTop="6dp" />
+    </LinearLayout>
+</LinearLayout>
