@@ -29,7 +29,6 @@ public class Meters {
 
     private final double[] rmsSmooth = new double[2];
     private final double[] peakLin = new double[2];
-    private long lastPeakTimeMs = 0;
     private volatile boolean lufsEnabled = true;
 
     // 公開値 (process の最後にまとめて更新。UI 側はロックなしで読む)
@@ -97,49 +96,58 @@ public class Meters {
         return y2;
     }
 
-    /** interleaved float サンプルを 1 チャンク処理する。エンジンスレッド専用。 */
+    /**
+     * interleaved float サンプルを処理する。エンジンスレッド専用。
+     * 内部では約 5ms のサブブロックごとにピーク/RMS のバリスティクスと
+     * 公開値を更新する。UI が高頻度に読んでも段々にならず滑らかに動く。
+     */
     public void process(float[] buf, int frames) {
-        int subSize = Math.max(1, sampleRate / 10);
-        long now = System.currentTimeMillis();
-        double decaySec = lastPeakTimeMs == 0 ? 0 : (now - lastPeakTimeMs) / 1000.0;
-        lastPeakTimeMs = now;
-        // PEAK decay: 12 dB/s 相当
-        double decayLin = Math.pow(10.0, -12.0 * decaySec / 20.0);
-        peakLin[0] *= decayLin;
-        peakLin[1] *= decayLin;
-
-        double chunkSq0 = 0, chunkSq1 = 0;
-        for (int i = 0; i < frames; i++) {
-            float l = buf[i * channels];
-            float r = channels > 1 ? buf[i * channels + 1] : l;
-            double a0 = Math.abs(l), a1 = Math.abs(r);
-            if (a0 > peakLin[0]) peakLin[0] = a0;
-            if (a1 > peakLin[1]) peakLin[1] = a1;
-            chunkSq0 += (double) l * l;
-            chunkSq1 += (double) r * r;
-            if (!lufsEnabled) continue;
-            double kl = kFilter(0, l);
-            double kr = channels > 1 ? kFilter(1, r) : kl;
-            curSum[0] += kl * kl;
-            curSum[1] += kr * kr;
-            subFill++;
-            if (subFill >= subSize) {
-                subSum[subIdx][0] = curSum[0];
-                subSum[subIdx][1] = curSum[1];
-                subCount[subIdx] = subFill;
-                curSum[0] = 0; curSum[1] = 0;
-                subFill = 0;
-                subIdx = (subIdx + 1) % SUB_BLOCKS;
+        int subSize = Math.max(1, sampleRate / 10);      // LUFS 用 100ms
+        int meterSub = Math.max(16, sampleRate / 200);   // メーター用 ~5ms
+        int done = 0;
+        while (done < frames) {
+            int n = Math.min(meterSub, frames - done);
+            double dt = (double) n / sampleRate;
+            // PEAK decay (音声時間ベース、12 dB/s)
+            double decayLin = Math.pow(10.0, -12.0 * dt / 20.0);
+            peakLin[0] *= decayLin;
+            peakLin[1] *= decayLin;
+            double sq0 = 0, sq1 = 0;
+            for (int i = done; i < done + n; i++) {
+                float l = buf[i * channels];
+                float r = channels > 1 ? buf[i * channels + 1] : l;
+                double a0 = Math.abs(l), a1 = Math.abs(r);
+                if (a0 > peakLin[0]) peakLin[0] = a0;
+                if (a1 > peakLin[1]) peakLin[1] = a1;
+                sq0 += (double) l * l;
+                sq1 += (double) r * r;
+                if (!lufsEnabled) continue;
+                double kl = kFilter(0, l);
+                double kr = channels > 1 ? kFilter(1, r) : kl;
+                curSum[0] += kl * kl;
+                curSum[1] += kr * kr;
+                subFill++;
+                if (subFill >= subSize) {
+                    subSum[subIdx][0] = curSum[0];
+                    subSum[subIdx][1] = curSum[1];
+                    subCount[subIdx] = subFill;
+                    curSum[0] = 0; curSum[1] = 0;
+                    subFill = 0;
+                    subIdx = (subIdx + 1) % SUB_BLOCKS;
+                }
             }
+            if (n > 0) {
+                // RMS release: 0.82 / 100ms を dt 換算
+                double rel = Math.pow(0.82, dt / 0.1);
+                rmsSmooth[0] = Math.max(Math.sqrt(sq0 / n), rmsSmooth[0] * rel);
+                rmsSmooth[1] = Math.max(Math.sqrt(sq1 / n), rmsSmooth[1] * rel);
+            }
+            publish();
+            done += n;
         }
-        // RMS: チャンク RMS を attack 即時 / release 滑らかで追従
-        if (frames > 0) {
-            double r0 = Math.sqrt(chunkSq0 / frames);
-            double r1 = Math.sqrt(chunkSq1 / frames);
-            rmsSmooth[0] = Math.max(r0, rmsSmooth[0] * 0.82);
-            rmsSmooth[1] = Math.max(r1, rmsSmooth[1] * 0.82);
-        }
-        // 公開値をまとめて更新
+    }
+
+    private void publish() {
         outRms0 = toDb(rmsSmooth[0]);
         outRms1 = toDb(rmsSmooth[1]);
         outPeak0 = toDb(peakLin[0]);

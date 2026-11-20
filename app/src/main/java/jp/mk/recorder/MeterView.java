@@ -27,6 +27,9 @@ public class MeterView extends View {
     private boolean clipL = false, clipR = false;
     private boolean stereo = true;
     private String label = "LUFS";
+    // 表示値 (描画側でターゲットへ滑らかに追従させる)
+    private double dispL = Meters.FLOOR, dispR = Meters.FLOOR;
+    private long lastDrawMs = 0;
 
     public MeterView(Context ctx) { super(ctx); init(); }
     public MeterView(Context ctx, AttributeSet attrs) { super(ctx, attrs); init(); }
@@ -93,17 +96,34 @@ public class MeterView extends View {
         return left + (float) (t * width);
     }
 
+    private static double chase(double disp, double target, double dt) {
+        if (target >= disp) return target; // attack は即時
+        return Math.max(target, disp - 28.0 * dt); // release は 28 dB/s
+    }
+
     @Override
     protected void onDraw(Canvas c) {
         super.onDraw(c);
         int w = getWidth(), h = getHeight();
+        // 表示値をターゲットへ追従させる
+        long now = System.currentTimeMillis();
+        double dt = lastDrawMs == 0 ? 0.016 : Math.min(0.1, (now - lastDrawMs) / 1000.0);
+        lastDrawMs = now;
+        dispL = chase(dispL, levelL, dt);
+        dispR = chase(dispR, levelR, dt);
         float labelW = 52f;
         float clipW = 34f;
         float barW = w - labelW - clipW - 12f;
         float barH = stereo ? (h - 18f) / 2f : h - 14f;
-        drawBar(c, 0, labelW, barW, barH, levelL, holdL, clipL, "L");
+        drawBar(c, 0, labelW, barW, barH, dispL, holdL, clipL, "L");
         if (stereo) {
-            drawBar(c, barH + 10f, labelW, barW, barH, levelR, holdR, clipR, "R");
+            drawBar(c, barH + 10f, labelW, barW, barH, dispR, holdR, clipR, "R");
+        }
+        // まだ動いている間は次のフレームを予約する
+        if (dispL != levelL || dispR != levelR
+                || (holdL > dispL && now - holdTimeL > 1200)
+                || (holdR > dispR && now - holdTimeR > 1200)) {
+            postInvalidateDelayed(16);
         }
         // スケール目盛り
         double[] ticks = {-60, -40, -20, -10, -5, 0};

@@ -15,11 +15,13 @@ public class MainActivity extends Activity {
     private RecUi recUi;
     private LibUi libUi;
     private SetUi setUi;
+    private FxUi fxUi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Prefs.load(this);
+        Fx.load(this);
         setContentView(R.layout.activity_main);
 
         viewRecord = findViewById(R.id.viewRecord);
@@ -32,6 +34,7 @@ public class MainActivity extends Activity {
         recUi = new RecUi(this);
         libUi = new LibUi(this);
         setUi = new SetUi(this);
+        fxUi = new FxUi(this, findViewById(R.id.viewFx));
 
         btnTabRec.setOnClickListener(v -> showTab(0));
         btnTabLib.setOnClickListener(v -> showTab(1));
@@ -49,6 +52,20 @@ public class MainActivity extends Activity {
                 != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
         }
+    }
+
+    /** FX エディタを開く (録音/試聴の両画面から呼ぶ)。 */
+    public void openFxEditor() {
+        if (fxUi != null) fxUi.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (fxUi != null && fxUi.isVisible()) {
+            fxUi.hide();
+            return;
+        }
+        super.onBackPressed();
     }
 
     private void showTab(int idx) {

@@ -41,6 +41,10 @@ public class Player {
     private int channels = 0;
     private AudioTrack track;
     private volatile long startOffsetFrames = 0;
+    private final FxChain fx = new FxChain();
+
+    /** FX エディタ表示用: 現在のゲインリダクション (dB)。 */
+    public double fxGrDb() { return fx.grDb(); }
 
     // FFT 用履歴 (モノラル)
     private final float[] history = new float[32768];
@@ -101,7 +105,7 @@ public class Player {
         return frames;
     }
 
-    private static int outputEncoding(MediaCodec dec) {
+    static int outputEncoding(MediaCodec dec) {
         try {
             MediaFormat of = dec.getOutputFormat();
             if (of.containsKey(MediaFormat.KEY_PCM_ENCODING)) {
@@ -149,6 +153,7 @@ public class Player {
     private void playFrom(double sec) {
         stopInternal();
         if (file == null) return;
+        fx.reset();
         stopFlag = false;
         playing = true;
         final double startSec = sec;
@@ -285,6 +290,7 @@ public class Player {
                         int need = frames * channels;
                         if (chunk.length < need) chunk = new float[need];
                         convert(out, info.offset, info.size, enc, channels, chunk);
+                        fx.process(chunk, frames, channels, sampleRate);
                         myTrack.write(chunk, 0, need, AudioTrack.WRITE_BLOCKING);
                         pushHistory(chunk, frames);
                     }

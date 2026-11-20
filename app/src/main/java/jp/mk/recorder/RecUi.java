@@ -20,6 +20,8 @@ public class RecUi {
     private final Button btnRec, btnStop, btnMarker;
     private final Button btnFmtWav, btnFmtFlac;
     private final Button btnMeterLufs, btnMeterRms, btnMeterPeak;
+    private final Button btnFxEq, btnFxComp;
+    private final GrView grViewRec;
     private final Spinner spRate, spDepth, spCh;
     private final SeekBar seekGain;
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -32,11 +34,15 @@ public class RecUi {
     private static final int[] DEPTHS = {WavWriter.MODE_INT16, WavWriter.MODE_INT24, WavWriter.MODE_FLOAT32};
     private static final String[] DEPTH_LABELS = {"16 bit", "24 bit", "32 bit float"};
 
+    private int tickCount = 0;
     private final Runnable tick = new Runnable() {
         @Override
         public void run() {
-            update();
-            handler.postDelayed(this, 150);
+            // メーターと録音時間は 33ms で回して滑らかに、
+            // ステータスや残量などの重い更新は約 500ms に 1 回
+            updateFast();
+            if (++tickCount % 15 == 1) update();
+            handler.postDelayed(this, 33);
         }
     };
 
@@ -100,6 +106,20 @@ public class RecUi {
 
         btnFmtWav.setOnClickListener(v -> setFormat(false));
         btnFmtFlac.setOnClickListener(v -> setFormat(true));
+        btnFxEq = act.findViewById(R.id.btnFxEq);
+        btnFxComp = act.findViewById(R.id.btnFxComp);
+        grViewRec = act.findViewById(R.id.grViewRec);
+        btnFxEq.setOnClickListener(v -> {
+            Fx.eqOn = !Fx.eqOn;
+            Fx.touch(); Fx.save(act); updateFxButtons();
+        });
+        btnFxComp.setOnClickListener(v -> {
+            Fx.compOn = !Fx.compOn;
+            Fx.touch(); Fx.save(act); updateFxButtons();
+        });
+        act.findViewById(R.id.btnFxEdit).setOnClickListener(
+                v -> ((MainActivity) act).openFxEditor());
+        updateFxButtons();
         btnMeterLufs.setOnClickListener(v -> setMeterMode(0));
         btnMeterRms.setOnClickListener(v -> setMeterMode(1));
         btnMeterPeak.setOnClickListener(v -> setMeterMode(2));
@@ -179,6 +199,15 @@ public class RecUi {
         updateMeterButtons();
     }
 
+    private void updateFxButtons() {
+        btnFxEq.setText(Fx.eqOn ? "EQ ON" : "EQ OFF");
+        btnFxEq.setBackgroundResource(Fx.eqOn
+                ? R.drawable.bg_button_primary : R.drawable.bg_button_secondary);
+        btnFxComp.setText(Fx.compOn ? "コンプ ON" : "コンプ OFF");
+        btnFxComp.setBackgroundResource(Fx.compOn
+                ? R.drawable.bg_button_primary : R.drawable.bg_button_secondary);
+    }
+
     private void updateMeterButtons() {
         btnMeterLufs.setBackgroundResource(meterMode == 0 ? R.drawable.bg_button_primary : R.drawable.bg_button_secondary);
         btnMeterRms.setBackgroundResource(meterMode == 1 ? R.drawable.bg_button_primary : R.drawable.bg_button_secondary);
@@ -186,7 +215,8 @@ public class RecUi {
         meterView.setLabel(meterMode == 0 ? "LUFS" : meterMode == 1 ? "RMS" : "PEAK");
     }
 
-    private void update() {
+    /** 33ms 周期: メーターと録音時間だけの軽い更新。 */
+    private void updateFast() {
         Meters m = RecorderService.meters;
         if (m != null && RecorderService.engineOn && meterView.isShown()) {
             double l, r;
@@ -204,6 +234,9 @@ public class RecUi {
         } else if (!RecorderService.saving) {
             tvRecTime.setText("00:00:00");
         }
+    }
+
+    private void update() {
         long remain = RecStore.remainingSec(act, RecorderService.bytesPerSec());
         tvRemain.setText(remain >= 0 ? "残り " + RecStore.fmtHms(remain) : "残り --:--");
 
@@ -233,6 +266,7 @@ public class RecUi {
             st += " [chk=" + RecorderService.diagChunks + " rd=" + RecorderService.diagLastRead + "]";
         }
         tvStatus.setText(st);
+        grViewRec.setGr(Fx.grDbNow);
         btnRec.setText(RecorderService.recording ? "● 録音中" : "● 録音");
         btnRec.setEnabled(!RecorderService.recording && !RecorderService.saving);
         btnStop.setEnabled(RecorderService.recording);

@@ -267,50 +267,62 @@
             android:layout_marginTop="10dp">
 
             <Button
+                android:id="@+id/btnFxEq"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="EQ"
-                android:enabled="false"
-                android:textColor="@color/text_sub"
+                android:text="EQ OFF"
+                android:textColor="@color/text_main"
                 android:background="@drawable/bg_button_secondary" />
 
             <Button
+                android:id="@+id/btnFxComp"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="6dp"
-                android:text="コンプ"
-                android:enabled="false"
-                android:textColor="@color/text_sub"
+                android:text="コンプ OFF"
+                android:textColor="@color/text_main"
                 android:background="@drawable/bg_button_secondary" />
 
             <Button
+                android:id="@+id/btnFxEdit"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="6dp"
-                android:text="リバーブ"
-                android:enabled="false"
-                android:textColor="@color/text_sub"
-                android:background="@drawable/bg_button_secondary" />
+                android:text="編集"
+                android:textColor="@color/text_main"
+                android:background="@drawable/bg_button_primary" />
+        </LinearLayout>
 
-            <Button
-                android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="GR"
+                android:textSize="12sp"
+                android:textColor="@color/text_sub" />
+
+            <jp.mk.recorder.GrView
+                android:id="@+id/grViewRec"
+                android:layout_width="0dp"
+                android:layout_height="14dp"
                 android:layout_weight="1"
-                android:layout_marginStart="6dp"
-                android:text="リミッター"
-                android:enabled="false"
-                android:textColor="@color/text_sub"
-                android:background="@drawable/bg_button_secondary" />
+                android:layout_marginStart="8dp" />
         </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="エフェクトは次フェーズでここに実装します（再生時は非破壊リアルタイム、書き出し時は破壊的適用）。"
+            android:layout_marginTop="8dp"
+            android:text="再生・書き出し用です（録音は原音のまま）。試聴しながら「編集」で調整できます。"
             android:textSize="12sp"
             android:textColor="@color/text_sub" />
     </LinearLayout>

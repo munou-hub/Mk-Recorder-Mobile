@@ -2,6 +2,7 @@ package jp.mk.recorder;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
@@ -160,6 +161,8 @@ public class LibUi {
                 player.seekTo(frac * loadedDuration);
             }
         });
+        act.findViewById(R.id.btnFxLib).setOnClickListener(
+                v -> ((MainActivity) act).openFxEditor());
         btnFft2048.setOnClickListener(v -> setFftSize(2048, btnFft2048, btnFft4096));
         btnFft4096.setOnClickListener(v -> setFftSize(4096, btnFft2048, btnFft4096));
         btnFft2048.setBackgroundResource(fftSize == 2048 ? R.drawable.bg_button_primary : R.drawable.bg_button_secondary);
@@ -266,15 +269,39 @@ public class LibUi {
     // ---------- file actions ----------
 
     private void showFileActions(File f) {
-        String[] items = {"リネーム", "共有", "削除"};
+        String[] items = {"リネーム", "共有", "削除", "FX書き出し"};
         new AlertDialog.Builder(act)
                 .setTitle(f.getName())
                 .setItems(items, (d, which) -> {
                     if (which == 0) showRename(f);
                     else if (which == 1) share(f);
                     else if (which == 2) confirmDelete(f);
+                    else if (which == 3) exportWithFx(f);
                 })
                 .show();
+    }
+
+    private void exportWithFx(File f) {
+        if (!FxChain.anyOn()) {
+            Toast.makeText(act, "FX が両方 OFF です。先に EQ / コンプを ON にしてください",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+        ProgressDialog pd = new ProgressDialog(act);
+        pd.setMessage("FX 書き出し中…");
+        pd.setCancelable(false);
+        pd.show();
+        FxRender.render(f, (out, err) -> {
+            pd.dismiss();
+            if (out != null) {
+                Toast.makeText(act, "書き出しました: " + out.getName(),
+                        Toast.LENGTH_LONG).show();
+                refresh();
+            } else {
+                Toast.makeText(act, "書き出しに失敗しました"
+                        + (err != null ? ": " + err : ""), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void showRename(File f) {
